@@ -5,8 +5,67 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ylcGroupingClient"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        ResizeMode="CanMinimize"
+        Title="ylcGroupingClinet" Width="480" Height="600">
     <Grid>
+        <Label Content="VideoId" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="74"/>
+        <TextBox Name="VideoIdTextBox" HorizontalAlignment="Left" Margin="84,10,0,0" Text="{Binding VideoId}" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="26"/>
+
+        <Label Content="選択肢" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="74" Height="52" VerticalContentAlignment="Center"/>
+        <TextBox Name="ChoicesTextBox" AcceptsReturn="True" HorizontalAlignment="Left" Margin="84,41,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="285" Height="52" Text=""/>
+        <Button Content="追加" HorizontalAlignment="Left" Margin="374,41,0,0" VerticalAlignment="Top"  Height="52" Width="42" Click="AddChoiceButtonClick" />
+        <DataGrid Name="ChoicesDataGrid" AutoGenerateColumns="False" HorizontalAlignment="Left" Height="138" Margin="10,98,0,0" VerticalAlignment="Top" Width="406" CanUserAddRows="False"  CanUserSortColumns="False" ItemsSource="{Binding Choices}" >
+            <DataGrid.Columns>
+                <DataGridTextColumn  Width="320"  Header="選択肢" Binding="{Binding Text, NotifyOnSourceUpdated=True}" />
+                <DataGridTemplateColumn Width="*" Header="操作">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="削除" Click="ChoiceRemove" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Label Content="Target" HorizontalAlignment="Left" Margin="10,241,0,0" VerticalAlignment="Top" Width="74" Height="28"/>
+        <ComboBox Name="TargetComboBox" HorizontalAlignment="Left" Margin="84,244,0,0" VerticalAlignment="Top" Width="120"  ItemsSource="{Binding TargetValues}" SelectedValue="{Binding TargetValue}" DisplayMemberPath="Label"/>
+
+        <Label Content="URI" HorizontalAlignment="Left" Height="29" Margin="10,274,0,0" VerticalAlignment="Top" Width="72"/>
+        <TextBox Name="URITextBox" Text="{Binding Uri}" HorizontalAlignment="Left" Margin="84,273,0,0"  TextWrapping="Wrap" VerticalAlignment="Top" Width="182" Height="29"/>
+        
+        <CheckBox Name="InsecureCheckBox" Content="Insecure" VerticalContentAlignment="Center"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="271,273,0,0"   IsChecked="{Binding IsInsecure}" Height="29" />
+
+        <Label Content="MaxHeight" HorizontalAlignment="Left" Height="29" Margin="10,309,0,0" VerticalAlignment="Top" Width="72"/>
+        <TextBox x:Name="MaxHeightTextBox" HorizontalAlignment="Left" Margin="132,309,0,0" Text="{Binding MaxHeight}" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" Height="29"/>
+
+        <Label Content="MaxWidth" HorizontalAlignment="Left" Height="29" Margin="271,310,0,0" VerticalAlignment="Top" Width="64"/>
+        <TextBox x:Name="MaxWidthTextBox" HorizontalAlignment="Left" Margin="340,309,0,0" Text="{Binding MaxWidth}" TextWrapping="Wrap" VerticalAlignment="Top" Width="76" Height="29"/>
+
+        <Label Content="WindowBackground" HorizontalAlignment="Left" Height="29" Margin="10,344,0,0" VerticalAlignment="Top" Width="116"/>
+        <TextBox Name="WindowBackgroundColorTextBox" HorizontalAlignment="Left" Margin="132,343,0,0" Text="{Binding WindowBackgroundColor}" TextWrapping="Wrap" VerticalAlignment="Top" Width="87" Height="30"/>
+        <Border Name="WindowBackgroundColorBorder" Background="{Binding WindowBackgroundColor}" BorderBrush="#000000"  BorderThickness="1" HorizontalAlignment="Center" Height="29" Margin="0,344,0,0"  VerticalAlignment="Top" Width="28"/>
+
+        <Label Content="BoxForeground" HorizontalAlignment="Left" Height="29" Margin="10,379,0,0" VerticalAlignment="Top" Width="116"/>
+        <TextBox Name="BoxForegroundColorTextBox" HorizontalAlignment="Left" Margin="132,378,0,0" Text="{Binding BoxForegroundColor}" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" Height="30"/>
+        <Border Name="BoxForegroundColorBorder" Background="{Binding BoxForegroundColor}" BorderBrush="#000000"  BorderThickness="1" HorizontalAlignment="Center" Height="29" Margin="0,379,0,0"  VerticalAlignment="Top" Width="28"/>
+
+        <Label Content="BoxBackground" HorizontalAlignment="Left" Height="29" Margin="10,414,0,0" VerticalAlignment="Top" Width="116"/>
+        <TextBox Name="BoxBackgroundColorTextBox" HorizontalAlignment="Left" Margin="132,413,0,0" Text="{Binding BoxBackgroundColor}" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" Height="30"/>
+        <Border Name="BoxBackgroundColorBorder" Background="{Binding BoxBackgroundColor}" BorderBrush="#000000"  BorderThickness="1" HorizontalAlignment="Center" Height="29" Margin="0,414,0,0"  VerticalAlignment="Top" Width="28"/>
+
+        <Label Content="BoxBorderColor" HorizontalAlignment="Left" Height="29" Margin="10,449,0,0" VerticalAlignment="Top" Width="116"/>
+        <TextBox Name="BoxBorderColorTextBox" HorizontalAlignment="Left" Margin="132,448,0,0" Text="{Binding BoxBorderColor}" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" Height="30"/>
+        <Border Name="BoxBorderColorBorder" Background="{Binding BoxBorderColor}" BorderBrush="#000000"  BorderThickness="1" HorizontalAlignment="Center" Height="29" Margin="0,449,0,0"  VerticalAlignment="Top" Width="30"/>
+
+        <Label Content="FontSize" HorizontalAlignment="Left" Margin="271,344,0,0" VerticalAlignment="Top" Height="29" Width="60"/>
+        <TextBox Name="FontSizeTextBox" HorizontalAlignment="Left" Margin="340,344,0,0" Text="{Binding FontSize}" TextWrapping="Wrap" VerticalAlignment="Top" Width="76" Height="29"/>
+
+        <Label Content="Padding" HorizontalAlignment="Left" Margin="271,379,0,0" VerticalAlignment="Top" Height="29" Width="60"/>
+        <TextBox Name="PaddingTextBox" HorizontalAlignment="Left" Margin="340,378,0,0" Text="{Binding Padding}" TextWrapping="Wrap" VerticalAlignment="Top" Width="76" Height="29"/>
+
+        <Button Content="開始" HorizontalAlignment="Left" Height="28" Margin="10,483,0,0" VerticalAlignment="Top" Width="54" Click="StartGroupingClick" RenderTransformOrigin="0.519,1.501"/>
+
+
 
     </Grid>
 </Window>
