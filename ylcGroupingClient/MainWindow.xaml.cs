@@ -52,7 +52,7 @@ namespace ylcGroupingClient
             {
                 return;
             }
-            _setting.Choices.Add(new Choice() { Text = ChoicesTextBox.Text, Result = ""});
+            _setting.Choices.Add(new Choice() { Text = ChoicesTextBox.Text });
             ChoicesTextBox.Text = "";
         }
 

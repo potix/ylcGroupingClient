@@ -17,7 +17,6 @@ namespace ylcGroupingClient
     public class Choice
     {
         public string Text { get; set; }
-        public string Result { get; set; }
     }
 
     public class Setting

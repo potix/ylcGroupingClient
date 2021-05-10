@@ -14,16 +14,19 @@ using Grpc.Net.Client;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Grpc.Core;
+using System.Diagnostics;
 
 namespace ylcGroupingClient
 {
     /// <summary>
     /// ViewWindow.xaml の相互作用ロジック
     /// </summary>
+
     public partial class ViewWindow : Window
     {
         private volatile bool isClosed;
         private readonly YlccProtocol protocol = new YlccProtocol();
+        private Collection<TextBox> _textBoxes = new Collection<TextBox>();
 
         public ViewWindow()
         {
@@ -42,15 +45,17 @@ namespace ylcGroupingClient
             System.Windows.Media.Color mColor = System.Windows.Media.Color.FromArgb(dColor.A, dColor.R, dColor.G, dColor.B);
             Background = new SolidColorBrush(mColor);
             Width = setting.MaxWidth + 10;
-            Height = setting.MaxHeight + 40;
+            Height = setting.MaxHeight + 20;
             int boxWidth = (setting.MaxWidth - ((setting.Choices.Count + 1) * setting.Padding)) / setting.Choices.Count;
-            int ChoiceBoxHeight = (setting.FontSize * 4) + (setting.Padding * 2);
-            int MessageBoxHeight = setting.MaxHeight - ChoiceBoxHeight - (setting.Padding * 3);
+            int LabelBoxHeight = setting.FontSize + setting.Padding;
+            int ChoiceBoxHeight = (setting.FontSize * 3) + setting.Padding;
+            int MessageBoxHeight = setting.MaxHeight - LabelBoxHeight - ChoiceBoxHeight - (setting.Padding * 2);
             int posX = setting.Padding;
-            foreach (Choice choice in setting.Choices)
+            for (int idx = 0; idx < setting.Choices.Count; idx += 1)
             {
-                _renderChoicesBox(setting, boxWidth, ChoiceBoxHeight, posX, setting.Padding, choice);
-                _renderMessageBox(setting, boxWidth, MessageBoxHeight, posX, setting.Padding + ChoiceBoxHeight, choice);
+                _renderLabelBox(setting, boxWidth, LabelBoxHeight, posX, setting.Padding, idx);
+                _renderChoiceBox(setting, boxWidth, ChoiceBoxHeight, posX, setting.Padding + LabelBoxHeight, idx);
+                _textBoxes.Add(_renderMessageBox(setting, boxWidth, MessageBoxHeight, posX, setting.Padding + LabelBoxHeight + ChoiceBoxHeight, idx));
                 posX += (boxWidth + setting.Padding);
             }
             try
@@ -98,13 +103,24 @@ namespace ylcGroupingClient
                     }
                     if (response.GroupingActiveLiveChatMessage != null)
                     {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.Append("[");
-                        stringBuilder.Append(response.GroupingActiveLiveChatMessage.ActiveLiveChatMessage.AuthorDisplayName);
-                        stringBuilder.Append("]:");
-                        stringBuilder.Append(response.GroupingActiveLiveChatMessage.ActiveLiveChatMessage.DisplayMessage);
-                        stringBuilder.Append("\n");
-                        setting.Choices[response.GroupingActiveLiveChatMessage.GroupIdx].Result = stringBuilder.ToString() + setting.Choices[response.GroupingActiveLiveChatMessage.GroupIdx].Result;
+                        Debug.Print("Label " + response.GroupingActiveLiveChatMessage.Label);
+                        Debug.Print("Choice " + response.GroupingActiveLiveChatMessage.Choice);
+                        Debug.Print("GroupIdx " + response.GroupingActiveLiveChatMessage.GroupIdx);
+                        Debug.Print("AuthorDisplayName " + response.GroupingActiveLiveChatMessage.ActiveLiveChatMessage.AuthorDisplayName);
+                        Debug.Print("DisplayMessage " + response.GroupingActiveLiveChatMessage.ActiveLiveChatMessage.DisplayMessage);
+                        // delete custom emoji
+                        string noCustomDisplayMessage = System.Text.RegularExpressions.Regex.Replace(response.GroupingActiveLiveChatMessage.ActiveLiveChatMessage.DisplayMessage, ":[^:]+?:", "").Trim();
+                        if (noCustomDisplayMessage == "")
+                        {
+                            continue;
+                        } 　
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append(noCustomDisplayMessage);
+                        sb.Append(" (");
+                        sb.Append(response.GroupingActiveLiveChatMessage.ActiveLiveChatMessage.AuthorDisplayName);
+                        sb.Append(")");
+                        sb.Append("\n");
+                        _textBoxes[response.GroupingActiveLiveChatMessage.GroupIdx].Text = sb.ToString() + _textBoxes[response.GroupingActiveLiveChatMessage.GroupIdx].Text;
                     }
                 }
                 await channel.ShutdownAsync();
@@ -121,11 +137,10 @@ namespace ylcGroupingClient
             }
         }
 
-        private void _renderChoicesBox(Setting setting, int width, int height, int posX, int posY, Choice choice)
+        private void _renderLabelBox(Setting setting, int width, int height, int posX, int posY, int idx)
         {
             TextBox textBox = new TextBox();
-            textBox.SetBinding(TextBox.TextProperty, "Text");
-            textBox.DataContext = choice;
+            textBox.Text = (idx + 1).ToString() + ".";
             textBox.FontSize = setting.FontSize;
             textBox.BorderThickness = new Thickness(0);
             textBox.HorizontalAlignment = HorizontalAlignment.Left;
@@ -145,11 +160,34 @@ namespace ylcGroupingClient
             ViewGrid.Children.Add(textBox);
         }
 
-        private void _renderMessageBox(Setting setting, int width, int height, int posX, int posY, Choice choice)
+        private void _renderChoiceBox(Setting setting, int width, int height, int posX, int posY, int idx)
         {
             TextBox textBox = new TextBox();
-            textBox.SetBinding(TextBox.TextProperty, "Result");
-            textBox.DataContext = choice;
+            textBox.SetBinding(TextBox.TextProperty, "Text");
+            textBox.DataContext = setting.Choices[idx];
+            textBox.FontSize = setting.FontSize;
+            textBox.BorderThickness = new Thickness(0);
+            textBox.HorizontalAlignment = HorizontalAlignment.Left;
+            textBox.VerticalAlignment = VerticalAlignment.Top;
+            textBox.Margin = new Thickness(posX, posY, 0, 0);
+            System.Drawing.Color dColor = System.Drawing.ColorTranslator.FromHtml(setting.BoxBackgroundColor);
+            System.Windows.Media.Color mColor = System.Windows.Media.Color.FromArgb(dColor.A, dColor.R, dColor.G, dColor.B);
+            textBox.Background = new SolidColorBrush(mColor);
+            dColor = System.Drawing.ColorTranslator.FromHtml(setting.BoxForegroundColor);
+            mColor = System.Windows.Media.Color.FromArgb(dColor.A, dColor.R, dColor.G, dColor.B);
+            textBox.Foreground = new SolidColorBrush(mColor);
+            textBox.HorizontalContentAlignment = HorizontalAlignment.Center;
+            textBox.VerticalContentAlignment = VerticalAlignment.Top;
+            textBox.Width = width;
+            textBox.Height = height;
+            textBox.TextWrapping = TextWrapping.Wrap;
+            ViewGrid.Children.Add(textBox);
+        }
+
+        private TextBox _renderMessageBox(Setting setting, int width, int height, int posX, int posY, int idx)
+        {
+            TextBox textBox = new TextBox();
+            textBox.Text = "";
             textBox.FontSize = setting.FontSize;
             textBox.BorderThickness = new Thickness(0);
             textBox.HorizontalAlignment = HorizontalAlignment.Left;
@@ -166,7 +204,9 @@ namespace ylcGroupingClient
             textBox.Width = width;
             textBox.Height = height;
             textBox.TextWrapping = TextWrapping.Wrap;
+            textBox.IsReadOnly = true;
             ViewGrid.Children.Add(textBox);
+            return textBox;
         }
     }
 }
